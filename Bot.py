@@ -7,7 +7,7 @@ from telegram.ext import Application, CommandHandler, MessageHandler, filters, C
 # Logging setup
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 
-# Expanded name list
+# Expanded name list (India, Nepal, Afghan, Uzbekistan, Arab)
 first_names = [
     "Aarav", "Arjun", "Vihaan", "Aditya", "Ishaan", "Sai", "Aaryan", "Kabir", "Rohan", "Rahul",
     "Bishal", "Ankit", "Suman", "Prabin", "Roshan", "Kiran", "Nabin", "Sagar", "Bibek", "Sandip",
@@ -25,7 +25,7 @@ last_names = [
 ]
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    # Notun button "🛒 Buy Mail/VPN" add kora holo
+    # Keyboard setup
     reply_keyboard = [['2FA Generator', 'Name Generator'], ['🛒 Buy Mail/VPN']]
     await update.message.reply_text(
         "👋 Welcome! Choice an option below:",
@@ -35,7 +35,17 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     text = update.message.text
 
-    if text == '2FA Generator':
+    # Shop Button Handle (Emoji shoho check kora hochhe)
+    if text == '🛒 Buy Mail/VPN':
+        shop_text = (
+            "🚀 **Welcome to Mail Marketplace!**\n\n"
+            "Need High-Quality Mail or VPN?\n"
+            "Visit our shop bot: @mailmarketplace_bot"
+        )
+        await update.message.reply_text(shop_text, parse_mode='Markdown')
+        return # Response deya hole ekhane sesh hobe
+
+    elif text == '2FA Generator':
         await update.message.reply_text("Please paste your 2FA Secret Key:")
         context.user_data['state'] = 'AWAITING_2FA'
     
@@ -44,32 +54,21 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         last = random.choice(last_names)
         full_name = f"{first} {last}"
         
-        # Click to copy name
         response = f"👤 **Generated Name:**\n`{full_name}`\n\n_(Click the name to copy)_"
         await update.message.reply_text(response, parse_mode='Markdown')
-
-    elif text == '🛒 Buy Mail/VPN':
-        # Apnar Shop Bot link
-        shop_text = (
-            "🚀 **Welcome to Mail Marketplace!**\n\n"
-            "Need High-Quality Mail or VPN?\n"
-            "Visit our shop bot: @mailmarketplace_bot"
-        )
-        await update.message.reply_text(shop_text, parse_mode='Markdown')
 
     elif context.user_data.get('state') == 'AWAITING_2FA':
         clean_key = text.replace(" ", "").upper()
         try:
             totp = pyotp.TOTP(clean_key)
             current_code = totp.now()
-            # Click to copy 2FA code
             await update.message.reply_text(f"Your 2FA Code: `{current_code}`\n\n_(Click the code to copy)_", parse_mode='Markdown')
         except Exception:
             await update.message.reply_text("❌ Error: Invalid Secret Key!")
         context.user_data['state'] = None
 
 def main():
-    # APNAR TOKEN EKHANE BOSHARE
+    # APNAR BOT TOKEN EKHANE DIN
     TOKEN = "7584347544:AAEaxLzbJs8jgpH3z22mppPk5rQFIoN43rU"
     
     application = Application.builder().token(TOKEN).build()
