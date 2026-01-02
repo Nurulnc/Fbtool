@@ -1,13 +1,13 @@
 import logging
 import pyotp
 import random
-from telegram import Update, ReplyKeyboardMarkup
+from telegram import Update, ReplyKeyboardMarkup, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
 
 # Logging setup
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 
-# Expanded name list (India, Nepal, Afghan, Uzbekistan, Arab)
+# Name list
 first_names = [
     "Aarav", "Arjun", "Vihaan", "Aditya", "Ishaan", "Sai", "Aaryan", "Kabir", "Rohan", "Rahul",
     "Bishal", "Ankit", "Suman", "Prabin", "Roshan", "Kiran", "Nabin", "Sagar", "Bibek", "Sandip",
@@ -25,7 +25,7 @@ last_names = [
 ]
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    # Keyboard setup
+    # Main Menu Buttons
     reply_keyboard = [['2FA Generator', 'Name Generator'], ['🛒 Buy Mail/VPN']]
     await update.message.reply_text(
         "👋 Welcome! Choice an option below:",
@@ -35,15 +35,15 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     text = update.message.text
 
-    # Shop Button Handle (Emoji shoho check kora hochhe)
-    if text == '🛒 Buy Mail/VPN':
-        shop_text = (
-            "🚀 **Welcome to Mail Marketplace!**\n\n"
-            "Need High-Quality Mail or VPN?\n"
-            "Visit our shop bot: @mailmarketplace_bot"
+    # Shop Button Handle (Ekhone keyword match kora hobe)
+    if 'Buy Mail/VPN' in text:
+        keyboard = [[InlineKeyboardButton("🛍️ Open Shop", url="https://t.me/mailmarketplace_bot")]]
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        await update.message.reply_text(
+            "🚀 **Welcome to Mail Marketplace!**\n\nNeed High-Quality Mail or VPN? Click the button below to visit our shop:",
+            reply_markup=reply_markup,
+            parse_mode='Markdown'
         )
-        await update.message.reply_text(shop_text, parse_mode='Markdown')
-        return # Response deya hole ekhane sesh hobe
 
     elif text == '2FA Generator':
         await update.message.reply_text("Please paste your 2FA Secret Key:")
@@ -53,8 +53,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         first = random.choice(first_names)
         last = random.choice(last_names)
         full_name = f"{first} {last}"
-        
-        response = f"👤 **Generated Name:**\n`{full_name}`\n\n_(Click the name to copy)_"
+        response = f"👤 **Generated Name:**\n`{full_name}`\n\n_(Click to copy)_"
         await update.message.reply_text(response, parse_mode='Markdown')
 
     elif context.user_data.get('state') == 'AWAITING_2FA':
@@ -62,19 +61,16 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         try:
             totp = pyotp.TOTP(clean_key)
             current_code = totp.now()
-            await update.message.reply_text(f"Your 2FA Code: `{current_code}`\n\n_(Click the code to copy)_", parse_mode='Markdown')
+            await update.message.reply_text(f"Your 2FA Code: `{current_code}`\n\n_(Click to copy)_", parse_mode='Markdown')
         except Exception:
             await update.message.reply_text("❌ Error: Invalid Secret Key!")
         context.user_data['state'] = None
 
 def main():
-    # APNAR BOT TOKEN EKHANE DIN
     TOKEN = "7584347544:AAEaxLzbJs8jgpH3z22mppPk5rQFIoN43rU"
-    
     application = Application.builder().token(TOKEN).build()
     application.add_handler(CommandHandler("start", start))
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
-
     print("Bot is running...")
     application.run_polling()
 
