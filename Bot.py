@@ -33,7 +33,7 @@ last_names = [
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     reply_keyboard = [['🔑 2FA Generator', '👤 Name Generator'], ['🛒 Buy Mail/VPN', 'ℹ️ About']]
     welcome_text = (
-        "✨ **Welcome to Facebook Tools Pro** ✨\n\n"
+        "✨ **Welcome to Facebook Tools** ✨\n\n"
         "Your all-in-one assistant for fast tools.\n"
         "━━━━━━━━━━━━━━━━━━━━\n"
         "⚡ **Features:**\n"
@@ -70,7 +70,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         about_text = (
             "🤖 **Bot Name:** Facebook Tools Pro\n"
             "🛠 **Version:** 2.0 (Smart Edition)\n"
-            "🚀 **Developer:** [Mr.chowdhury]\n"
+            "🚀 **Developer:** [@Mrchowdhury100]\n"
             "━━━━━━━━━━━━━━━━━━━━\n"
             "Simple. Fast. Reliable."
         )
