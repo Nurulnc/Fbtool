@@ -68,7 +68,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # About Button
     elif 'About' in text:
         about_text = (
-            "🤖 **Bot Name:** Facebook Tools Pro\n"
+            "🤖 **Bot Name:** Facebook Tools\n"
             "🛠 **Version:** 2.0 (Smart Edition)\n"
             "🚀 **Developer:** [@Mrchowdhury100]\n"
             "━━━━━━━━━━━━━━━━━━━━\n"
