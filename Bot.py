@@ -7,7 +7,11 @@ from telegram.ext import Application, CommandHandler, MessageHandler, filters, C
 # Logging setup
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 
-# Name list
+# --- Configuration ---
+TOKEN = "7584347544:AAEaxLzbJs8jgpH3z22mppPk5rQFIoN43rU"
+LOGO_URL = "https://ibb.co.com/Ng6M5VG5" # Apnar logo-r link ekhane din
+
+# --- Data ---
 first_names = [
     "Aarav", "Arjun", "Vihaan", "Aditya", "Ishaan", "Sai", "Aaryan", "Kabir", "Rohan", "Rahul",
     "Bishal", "Ankit", "Suman", "Prabin", "Roshan", "Kiran", "Nabin", "Sagar", "Bibek", "Sandip",
@@ -24,54 +28,99 @@ last_names = [
     "Al-Farsi", "Mansoor", "Al-Sayed", "Haddad", "Bakir", "Al-Rashid", "Malik", "Hariri", "Najjar", "Abadi"
 ]
 
+# --- Functions ---
+
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    # Main Menu Buttons
-    reply_keyboard = [['2FA Generator', 'Name Generator'], ['🛒 Buy Mail/VPN']]
-    await update.message.reply_text(
-        "👋 Welcome! Choice an option below:",
-        reply_markup=ReplyKeyboardMarkup(reply_keyboard, resize_keyboard=True)
+    reply_keyboard = [['🔑 2FA Generator', '👤 Name Generator'], ['🛒 Buy Mail/VPN', 'ℹ️ About']]
+    welcome_text = (
+        "✨ **Welcome to Facebook Tools Pro** ✨\n\n"
+        "Your all-in-one assistant for fast tools.\n"
+        "━━━━━━━━━━━━━━━━━━━━\n"
+        "⚡ **Features:**\n"
+        "├ 2FA Code Generation\n"
+        "├ Multi-Country Name Generator\n"
+        "└ Direct Marketplace Access\n\n"
+        "Please choose an option below to start:"
+    )
+    
+    # Send welcome message with a photo for a pro look
+    await update.message.reply_photo(
+        photo=LOGO_URL,
+        caption=welcome_text,
+        reply_markup=ReplyKeyboardMarkup(reply_keyboard, resize_keyboard=True),
+        parse_mode='Markdown'
     )
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     text = update.message.text
 
-    # Shop Button Handle (Ekhone keyword match kora hobe)
+    # Shop Button
     if 'Buy Mail/VPN' in text:
-        keyboard = [[InlineKeyboardButton("🛍️ Open Shop", url="https://t.me/mailmarketplace_bot")]]
-        reply_markup = InlineKeyboardMarkup(keyboard)
+        keyboard = [[InlineKeyboardButton("🛍️ Enter Marketplace", url="https://t.me/mailmarketplace_bot")]]
         await update.message.reply_text(
-            "🚀 **Welcome to Mail Marketplace!**\n\nNeed High-Quality Mail or VPN? Click the button below to visit our shop:",
-            reply_markup=reply_markup,
+            "💎 **Exclusive Shop Access**\n\n"
+            "Get high-quality accounts and VPNs at the best prices.\n"
+            "━━━━━━━━━━━━━━━━━━━━",
+            reply_markup=InlineKeyboardMarkup(keyboard),
             parse_mode='Markdown'
         )
 
-    elif text == '2FA Generator':
-        await update.message.reply_text("Please paste your 2FA Secret Key:")
+    # About Button
+    elif 'About' in text:
+        about_text = (
+            "🤖 **Bot Name:** Facebook Tools Pro\n"
+            "🛠 **Version:** 2.0 (Smart Edition)\n"
+            "🚀 **Developer:** [Mr.chowdhury]\n"
+            "━━━━━━━━━━━━━━━━━━━━\n"
+            "Simple. Fast. Reliable."
+        )
+        await update.message.reply_text(about_text, parse_mode='Markdown')
+
+    # 2FA Logic
+    elif '2FA Generator' in text:
+        await update.message.reply_text(
+            "📟 **2FA Mode Activated**\n"
+            "Please send your **Secret Key** below:"
+        )
         context.user_data['state'] = 'AWAITING_2FA'
     
-    elif text == 'Name Generator':
+    # Name Generator Logic
+    elif 'Name Generator' in text:
         first = random.choice(first_names)
         last = random.choice(last_names)
         full_name = f"{first} {last}"
-        response = f"👤 **Generated Name:**\n`{full_name}`\n\n_(Click to copy)_"
+        
+        response = (
+            "🔰 **New Identity Generated** 🔰\n"
+            "━━━━━━━━━━━━━━━━━━━━\n"
+            "👤 **Name:** `{}`\n"
+            "━━━━━━━━━━━━━━━━━━━━\n"
+            "👉 _Tap name to copy it instantly._".format(full_name)
+        )
         await update.message.reply_text(response, parse_mode='Markdown')
 
+    # 2FA Result Handling
     elif context.user_data.get('state') == 'AWAITING_2FA':
         clean_key = text.replace(" ", "").upper()
         try:
             totp = pyotp.TOTP(clean_key)
             current_code = totp.now()
-            await update.message.reply_text(f"Your 2FA Code: `{current_code}`\n\n_(Click to copy)_", parse_mode='Markdown')
+            await update.message.reply_text(
+                "✅ **Verification Code Generated**\n\n"
+                "🔑 Code: `{}`\n\n"
+                "⚠️ _Expires in 30 seconds_".format(current_code),
+                parse_mode='Markdown'
+            )
         except Exception:
-            await update.message.reply_text("❌ Error: Invalid Secret Key!")
+            await update.message.reply_text("❌ **Invalid Secret Key!** Please check and try again.")
         context.user_data['state'] = None
 
 def main():
-    TOKEN = "7584347544:AAEaxLzbJs8jgpH3z22mppPk5rQFIoN43rU"
     application = Application.builder().token(TOKEN).build()
     application.add_handler(CommandHandler("start", start))
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
-    print("Bot is running...")
+    
+    print("Bot is running smoothly...")
     application.run_polling()
 
 if __name__ == '__main__':
