@@ -25,7 +25,8 @@ last_names = [
 ]
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    reply_keyboard = [['2FA Generator', 'Name Generator']]
+    # Notun button "🛒 Buy Mail/VPN" add kora holo
+    reply_keyboard = [['2FA Generator', 'Name Generator'], ['🛒 Buy Mail/VPN']]
     await update.message.reply_text(
         "👋 Welcome! Choice an option below:",
         reply_markup=ReplyKeyboardMarkup(reply_keyboard, resize_keyboard=True)
@@ -43,22 +44,32 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         last = random.choice(last_names)
         full_name = f"{first} {last}"
         
-        # Click to copy system (Markdown code block style)
+        # Click to copy name
         response = f"👤 **Generated Name:**\n`{full_name}`\n\n_(Click the name to copy)_"
         await update.message.reply_text(response, parse_mode='Markdown')
+
+    elif text == '🛒 Buy Mail/VPN':
+        # Apnar Shop Bot link
+        shop_text = (
+            "🚀 **Welcome to Mail Marketplace!**\n\n"
+            "Need High-Quality Mail or VPN?\n"
+            "Visit our shop bot: @mailmarketplace_bot"
+        )
+        await update.message.reply_text(shop_text, parse_mode='Markdown')
 
     elif context.user_data.get('state') == 'AWAITING_2FA':
         clean_key = text.replace(" ", "").upper()
         try:
             totp = pyotp.TOTP(clean_key)
             current_code = totp.now()
-            # 2FA code o click to copy kore deya holo
+            # Click to copy 2FA code
             await update.message.reply_text(f"Your 2FA Code: `{current_code}`\n\n_(Click the code to copy)_", parse_mode='Markdown')
         except Exception:
             await update.message.reply_text("❌ Error: Invalid Secret Key!")
         context.user_data['state'] = None
 
 def main():
+    # APNAR TOKEN EKHANE BOSHARE
     TOKEN = "7584347544:AAEaxLzbJs8jgpH3z22mppPk5rQFIoN43rU"
     
     application = Application.builder().token(TOKEN).build()
